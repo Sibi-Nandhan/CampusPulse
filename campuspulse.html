@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Pulse — Creator Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --violet:#6C3CE9;
+    --violet-deep:#4B1FB8;
+    --ink:#12101A;
+    --paper:#FFFFFF;
+    --mist:#F6F5FA;
+    --line:#E7E5F0;
+    --sub:#6B6779;
+    --ok:#1FAE6B;
+
+    --cat-hackathon:#E1461C;
+    --cat-hackathon-soft:#FDECE6;
+    --cat-workshop:#0E8E7D;
+    --cat-workshop-soft:#E4F5F1;
+    --cat-fdp:#2455C7;
+    --cat-fdp-soft:#E9EFFC;
+    --cat-webinar:#8A2BB0;
+    --cat-webinar-soft:#F5E9FA;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.display{font-family:'Sora',sans-serif;}
+
+  /* ---------- Header ---------- */
+  header{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand .mark{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--violet-deep));display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:16px;}
+  .brand .name{font-family:'Sora',sans-serif;font-weight:800;font-size:19px;line-height:1.1;}
+  .brand .tag{font-size:12px;color:var(--sub);}
+  .page-label{font-family:'Sora',sans-serif;font-weight:700;font-size:14px;color:var(--violet);background:var(--mist);padding:9px 16px;border-radius:20px;}
+
+  /* ---------- Page intro ---------- */
+  .intro{padding:44px 48px 8px;max-width:760px;}
+  .eyebrow{color:var(--violet);font-weight:700;font-size:13px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--violet);}
+  .intro h1{font-size:38px;line-height:1.1;margin:0 0 12px;font-weight:800;}
+  .intro p{color:var(--sub);font-size:16px;line-height:1.55;margin:0;max-width:60ch;}
+
+  /* ---------- Layout ---------- */
+  .workspace{display:grid;grid-template-columns:400px 1fr;gap:0;padding:36px 48px 80px;align-items:start;}
+  .panel{background:var(--mist);border:1px solid var(--line);border-radius:18px;padding:26px;}
+  .form-col{position:sticky;top:24px;}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+  .field .hint{font-size:12px;color:var(--sub);font-weight:400;margin-left:6px;}
+  select, input[type=text], textarea{
+    width:100%;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:11px 13px;
+    font-family:inherit;font-size:14px;color:var(--ink);outline:none;
+  }
+  select:focus, input:focus, textarea:focus{border-color:var(--violet);}
+  textarea{resize:vertical;min-height:70px;line-height:1.5;}
+
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .cat-chip{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px 10px;cursor:pointer;text-align:left;font-family:inherit;}
+  .cat-chip .cname{font-weight:700;font-size:13.5px;display:block;}
+  .cat-chip .cdesc{font-size:11.5px;color:var(--sub);}
+  .cat-chip.selected{border-color:var(--cat);background:var(--cat-soft);}
+  .cat-chip.selected .cname{color:var(--cat);}
+
+  .generate-btn{
+    width:100%;background:var(--violet);color:#fff;border:none;padding:14px;border-radius:12px;
+    font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;margin-top:6px;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .generate-btn:active{transform:translateY(1px);}
+  .sub-note{font-size:11.5px;color:var(--sub);margin-top:10px;line-height:1.5;}
+
+  /* ---------- Output ---------- */
+  .output-col{padding-left:36px;}
+  .empty-state{
+    height:520px;border:1.5px dashed var(--line);border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sub);text-align:center;padding:40px;
+  }
+  .empty-state .ico{font-size:34px;margin-bottom:14px;}
+  .empty-state h3{margin:0 0 8px;color:var(--ink);font-size:18px;}
+  .empty-state p{margin:0;max-width:36ch;font-size:14px;line-height:1.5;}
+
+  .output-grid{display:none;grid-template-columns:300px 1fr;gap:28px;}
+  .output-grid.show{display:grid;}
+
+  /* poster */
+  .poster-wrap{display:flex;flex-direction:column;gap:14px;}
+  .poster{
+    width:300px;height:375px;border-radius:20px;overflow:hidden;position:relative;
+    font-family:'Sora',sans-serif;color:#fff;display:flex;flex-direction:column;justify-content:space-between;
+    padding:26px;background:linear-gradient(160deg,var(--cat),var(--cat-deep));
+  }
+  .poster .p-top{display:flex;justify-content:space-between;align-items:flex-start;font-family:'Plus Jakarta Sans',sans-serif;}
+  .poster .p-badge{background:rgba(255,255,255,.18);backdrop-filter:blur(4px);padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.02em;}
+  .poster .p-logo{font-size:12px;font-weight:700;opacity:.85;}
+  .poster .p-mid{}
+  .poster .p-name{font-size:26px;font-weight:800;line-height:1.12;margin-bottom:10px;}
+  .poster .p-desc{font-size:12.5px;opacity:.9;line-height:1.45;font-family:'Plus Jakarta Sans',sans-serif;}
+  .poster .p-bottom{border-top:1px solid rgba(255,255,255,.25);padding-top:12px;font-family:'Plus Jakarta Sans',sans-serif;}
+  .poster .p-meta{font-size:12px;font-weight:600;margin-bottom:4px;}
+  .poster .p-tag{font-size:11px;opacity:.85;}
+  .poster .p-shape{position:absolute;border-radius:50%;background:rgba(255,255,255,.10);}
+
+  .poster-actions{display:flex;gap:8px;}
+  .icon-btn{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .icon-btn:hover{border-color:var(--violet);color:var(--violet);}
+
+  .layout-note{font-size:11.5px;color:var(--sub);background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;line-height:1.5;}
+
+  /* text blocks */
+  .text-col{display:flex;flex-direction:column;gap:20px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;}
+  .card .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .card .card-title{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;}
+  .copy-btn{background:var(--mist);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink);}
+  .copy-btn.copied{background:var(--ok);color:#fff;border-color:var(--ok);}
+  .card textarea{border:none;background:transparent;padding:0;font-size:14px;line-height:1.6;width:100%;}
+  .card textarea:focus{outline:none;}
+  .script-block{margin-bottom:12px;}
+  .script-block:last-child{margin-bottom:0;}
+  .script-label{font-size:11px;font-weight:800;color:var(--violet);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+
+  /* share row */
+  .share-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .share-btn{
+    display:flex;align-items:center;gap:8px;padding:11px 16px;border-radius:10px;border:none;
+    font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;color:#fff;
+  }
+  .share-btn.wa{background:#25D366;}
+  .share-btn.li{background:#0A66C2;}
+  .share-btn.x{background:#111;}
+  .share-btn.ig{background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF);}
+  .share-hint{font-size:11.5px;color:var(--sub);margin-top:10px;line-height:1.5;}
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:600;
+    opacity:0;transition:all .25s ease;pointer-events:none;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:900px){
+    .workspace{grid-template-columns:1fr;padding:24px;}
+    .output-col{padding-left:0;margin-top:24px;}
+    .output-grid.show{grid-template-columns:1fr;}
+    .poster-wrap{align-items:center;}
+    header{padding:16px 20px;}
+    .intro{padding:28px 20px 4px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark">CP</div>
+    <div>
+      <div class="name">Campus Pulse</div>
+      <div class="tag">Discover · Engage · Participate</div>
+    </div>
+  </div>
+  <div class="page-label">Creator Suite</div>
+</header>
+
+<div class="intro">
+  <div class="eyebrow"><span class="dot"></span> CREATOR SUITE</div>
+  <h1>Turn any event into a ready-to-post kit.</h1>
+  <p>Pick a category, pull in the event details, and get a poster, a caption, and a Reel script — built for your event type, ready to share in under a minute.</p>
+</div>
+
+<div class="workspace">
+
+  <!-- FORM -->
+  <div class="panel form-col">
+    <div class="field">
+      <label>Event category</label>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+
+    <div class="field">
+      <label>Event name</label>
+      <input type="text" id="fName" />
+    </div>
+
+    <div class="field">
+      <label>Date & venue</label>
+      <input type="text" id="fMeta" />
+    </div>
+
+    <div class="field">
+      <label>Short description <span class="hint">(1–2 lines)</span></label>
+      <textarea id="fDesc"></textarea>
+    </div>
+
+    <button class="generate-btn" onclick="generate()">✦ Generate content kit</button>
+    <div class="sub-note">Event details are auto-pulled from the AllCollegeEvent.com listing when you pick a category — edit anything before generating.</div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="output-col">
+    <div class="empty-state" id="emptyState">
+      <div class="ico">🪄</div>
+      <h3>Nothing generated yet</h3>
+      <p>Choose a category on the left and hit Generate — your poster, caption and Reel script will appear here.</p>
+    </div>
+
+    <div class="output-grid" id="outputGrid">
+      <div class="poster-wrap">
+        <div class="poster" id="poster">
+          <div class="p-shape" id="pShape1"></div>
+          <div class="p-shape" id="pShape2"></div>
+          <div class="p-top">
+            <div class="p-badge" id="pBadge">HACKATHON</div>
+            <div class="p-logo">Campus Pulse</div>
+          </div>
+          <div class="p-mid">
+            <div class="p-name" id="pName">Tech Fest '26</div>
+            <div class="p-desc" id="pDesc">Build. Battle. Belong.</div>
+          </div>
+          <div class="p-bottom">
+            <div class="p-meta" id="pMeta">12 Sept · Main Block</div>
+            <div class="p-tag" id="pTag">#AllCollegeEventChallenge</div>
+          </div>
+        </div>
+        <div class="poster-actions">
+          <button class="icon-btn" onclick="downloadPoster()">⬇ Download PNG</button>
+        </div>
+        <div class="layout-note" id="layoutNote"></div>
+      </div>
+
+      <div class="text-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Caption</div>
+            <button class="copy-btn" onclick="copyText('captionBox', this)">Copy</button>
+          </div>
+          <textarea id="captionBox" rows="5"></textarea>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Reel script</div>
+            <button class="copy-btn" onclick="copyText('scriptPlain', this)">Copy</button>
+          </div>
+          <div id="scriptDisplay"></div>
+          <textarea id="scriptPlain" style="display:none;"></textarea>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Share</div>
+          </div>
+          <div class="share-row">
+            <button class="share-btn wa" onclick="shareWhatsApp()">WhatsApp</button>
+            <button class="share-btn li" onclick="shareLinkedIn()">LinkedIn</button>
+            <button class="share-btn x" onclick="shareX()">X</button>
+            <button class="share-btn ig" onclick="shareInstagram()">Instagram</button>
+          </div>
+          <div class="share-hint">WhatsApp & X open pre-filled. LinkedIn copies your caption first, then opens the post window — just paste. Instagram has no web share option, so it downloads the poster and copies the caption for you to post from the app.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+const CATEGORIES = {
+  hackathon: {
+    label: "Hackathon",
+    desc: "High energy, bold",
+    color: "#E1461C", deep: "#8C2410", soft: "#FDECE6",
+    badge: "HACKATHON",
+    sample: { name: "Tech Fest '26", meta: "12 Sept · Main Block, KPRIET", desc: "Build. Battle. Belong. — an inter-college 24-hour hackathon." },
+    layoutNote: "Layout: diagonal energy shapes, bold display type — built for high-adrenaline events.",
+    hook: "Got 24 hours and a wild idea?",
+    shots: ["Teams huddled around laptops, code on screen", "Judges walking the floor, close-up on a working demo", "Winning team celebrating on stage"],
+    cta: "Registrations close soon — link in bio."
+  },
+  workshop: {
+    label: "Workshop",
+    desc: "Clean, focused",
+    color: "#0E8E7D", deep: "#075C50", soft: "#E4F5F1",
+    badge: "WORKSHOP",
+    sample: { name: "Figma for Beginners", meta: "18 Sept · Online, 4–6 PM", desc: "A hands-on session on design fundamentals, beginner friendly." },
+    layoutNote: "Layout: calm centered composition — built for skill-building, hands-on sessions.",
+    hook: "Ever wanted to actually learn this, not just watch a video?",
+    shots: ["Instructor sharing screen, walking through a live example", "Attendee trying it themselves, quick reaction shot", "Certificate or takeaway shown to camera"],
+    cta: "Seats are limited — reserve yours today."
+  },
+  fdp: {
+    label: "FDP",
+    desc: "Formal, structured",
+    color: "#2455C7", deep: "#132E7A", soft: "#E9EFFC",
+    badge: "FDP",
+    sample: { name: "AI in Higher Education", meta: "22 Sept · Seminar Hall B", desc: "A faculty development programme on integrating AI tools in teaching." },
+    layoutNote: "Layout: top-bar formal structure — built for faculty & academic programmes.",
+    hook: "One session, real classroom impact.",
+    shots: ["Speaker introduction with credentials on screen", "Faculty members engaged in discussion", "Key takeaway slide, held for a beat"],
+    cta: "Certified participation — register through the portal."
+  },
+  webinar: {
+    label: "Webinar",
+    desc: "Minimal, direct",
+    color: "#8A2BB0", deep: "#4E1264", soft: "#F5E9FA",
+    badge: "WEBINAR",
+    sample: { name: "Careers in Product Design", meta: "25 Sept · Online, 6 PM", desc: "A live Q&A with a product designer on breaking into the field." },
+    layoutNote: "Layout: minimal badge composition — built for online, low-friction sessions.",
+    hook: "Thinking about a career in this field? Start here.",
+    shots: ["Speaker on camera, casual setting", "Live chat / questions rolling in on screen", "Closing thought, direct to camera"],
+    cta: "Drop your questions early — link in bio."
+  }
+};
+
+let currentCat = null;
+
+function buildCatGrid(){
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = '';
+  Object.entries(CATEGORIES).forEach(([key, c]) => {
+    const chip = document.createElement('button');
+    chip.className = 'cat-chip';
+    chip.style.setProperty('--cat', c.color);
+    chip.style.setProperty('--cat-soft', c.soft);
+    chip.innerHTML = `<span class="cname">${c.label}</span><span class="cdesc">${c.desc}</span>`;
+    chip.onclick = () => selectCategory(key, chip);
+    grid.appendChild(chip);
+  });
+}
+
+function selectCategory(key, chipEl){
+  currentCat = key;
+  document.querySelectorAll('.cat-chip').forEach(el => el.classList.remove('selected'));
+  chipEl.classList.add('selected');
+  const c = CATEGORIES[key];
+  document.getElementById('fName').value = c.sample.name;
+  document.getElementById('fMeta').value = c.sample.meta;
+  document.getElementById('fDesc').value = c.sample.desc;
+}
+
+function generate(){
+  if(!currentCat){ currentCat = 'hackathon'; selectCategory('hackathon', document.querySelector('.cat-chip')); }
+  const c = CATEGORIES[currentCat];
+  const name = document.getElementById('fName').value || c.sample.name;
+  const meta = document.getElementById('fMeta').value || c.sample.meta;
+  const desc = document.getElementById('fDesc').value || c.sample.desc;
+
+  // poster
+  const poster = document.getElementById('poster');
+  poster.style.setProperty('--cat', c.color);
+  poster.style.setProperty('--cat-deep', c.deep);
+  document.getElementById('pBadge').textContent = c.badge;
+  document.getElementById('pName').textContent = name;
+  document.getElementById('pDesc').textContent = desc;
+  document.getElementById('pMeta').textContent = meta;
+  document.getElementById('pTag').textContent = '#AllCollegeEventChallenge';
+  document.getElementById('pShape1').style.cssText = 'width:180px;height:180px;top:-60px;right:-60px;';
+  document.getElementById('pShape2').style.cssText = 'width:120px;height:120px;bottom:60px;left:-50px;';
+  document.getElementById('layoutNote').textContent = c.layoutNote;
+
+  // caption
+  const caption = `${c.hook}\n\n${name} is happening on ${meta}. ${desc}\n\nJoin in and be part of it — tag us when you post!\n\n#AllCollegeEventChallenge #MyAllCollegeEvent #ECLearnix #${c.label.replace(/\s/g,'')}`;
+  document.getElementById('captionBox').value = caption;
+
+  // script
+  const scriptPlain = `HOOK: ${c.hook}\n\nSHOTS:\n1. ${c.shots[0]}\n2. ${c.shots[1]}\n3. ${c.shots[2]}\n\nCTA: ${c.cta}`;
+  document.getElementById('scriptPlain').value = scriptPlain;
+  document.getElementById('scriptDisplay').innerHTML = `
+    <div class="script-block"><div class="script-label">Hook</div>${c.hook}</div>
+    <div class="script-block"><div class="script-label">Shots</div>1. ${c.shots[0]}<br>2. ${c.shots[1]}<br>3. ${c.shots[2]}</div>
+    <div class="script-block"><div class="script-label">Call to action</div>${c.cta}</div>
+  `;
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('outputGrid').classList.add('show');
+  window.__lastCaption = caption;
+  window.__lastEventName = name;
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function copyText(id, btn){
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.value).then(() => {
+    const old = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function downloadPoster(){
+  html2canvas(document.getElementById('poster'), {backgroundColor: null, scale: 3}).then(canvas => {
+    const link = document.createElement('a');
+    link.download = (window.__lastEventName || 'campus-pulse-poster').replace(/\s+/g,'_') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+
+function shareWhatsApp(){
+  const text = encodeURIComponent(window.__lastCaption || '');
+  window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+function shareX(){
+  const text = encodeURIComponent(window.__lastCaption || '');
+  window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+}
+
+function shareLinkedIn(){
+  navigator.clipboard.writeText(window.__lastCaption || '');
+  showToast('Caption copied — paste it into the post box');
+  setTimeout(() => {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://allcollegeevent.com')}`, '_blank');
+  }, 400);
+}
+
+function shareInstagram(){
+  downloadPoster();
+  navigator.clipboard.writeText(window.__lastCaption || '');
+  showToast('Poster downloaded & caption copied — post it from the Instagram app');
+}
+
+buildCatGrid();
+</script>
+
+</body>
+</html>
